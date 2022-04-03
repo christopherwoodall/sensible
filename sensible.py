@@ -69,10 +69,6 @@ class Sensible:
     else:
       raise Exception("[!] Invalid argument")
 
-  def notify(self, key, value):
-    setattr(self, key, value)
-    return value
-
   def check_path(self, path):
     if not Path(path).is_dir():
       print("[!] Directory does not exist")
@@ -120,6 +116,10 @@ class Sensible:
 
   ############
   #
+  def notify(self, key, value):
+    setattr(self, key, value)
+    return value
+
   def get_height( self ):
     height = int( os.popen('stty size').read( ).split( )[0].strip( ) )
     # return self.notify('height', height, self.window)
@@ -145,8 +145,8 @@ class Sensible:
 
 
   def render_chyron(self):
-    #self.elements['chyron']
-    text = "test"
+    text = " | ".join(f'{k}: {v}' for k,v in self.elements['chyron'].items())
+
     height, width = self.stdscr.getmaxyx()
     self.stdscr.attron(curses.color_pair(3))
     self.stdscr.addstr(height-1, 0, text)
@@ -156,7 +156,6 @@ class Sensible:
   def render_left_panel(self):
     max_x = math.floor(((self.get_width() / 9 )) * 6 )
     max_y = math.floor((self.get_height() -2))
-    # curses.newwin( h, w, y, x )
     window = curses.newwin( max_y, max_x, 1, 0 )
     window.erase()
     window.box()
@@ -183,7 +182,6 @@ class Sensible:
     _x = math.floor(((self.get_width() / 9 )) * 6 )
     max_x = math.floor(((self.get_width() / 9 )) * 3 )
     max_y = math.floor((self.get_height() -2))
-    # curses.newwin( h, w, y, x )
     window = curses.newwin( max_y, max_x, 1, _x )
     window.erase()
     window.box()
@@ -233,7 +231,6 @@ class Sensible:
     cursor_y = 0
 
 
-
     while (k != ord('q')):
       # Initialization
       stdscr.clear()
@@ -258,13 +255,10 @@ class Sensible:
 
       elif k == ord(' '):
           self.options[self.position]['selected'] = (
-            not self.options[self.position]['selected']
-          )
+            not self.options[self.position]['selected'] )
       elif k == curses.KEY_ENTER:
           cursor_x = cursor_x - 1
 
-      # cursor_y = max(0, len(self.options) - 1)
-      # cursor_y = min(height-1, cursor_y)
       self.position = cursor_y
 
       # Declaration of strings
@@ -279,14 +273,6 @@ class Sensible:
       start_x_subtitle = int((width // 2) - (len(subtitle) // 2) - len(subtitle) % 2)
       start_x_keystr = int((width // 2) - (len(keystr) // 2) - len(keystr) % 2)
       start_y = int((height // 2) - 2)
-
-      # # Rendering some text
-      # whstr = "Width: {}, Height: {}".format(width, height)
-      # stdscr.addstr(0, 0, whstr, curses.color_pair(1))
-      # Header
-      # whstr = "Sensible - Ansible Playbook TUI"
-      # stdscr.addstr(0, 0, whstr, curses.color_pair(3))
-
 
       ## Window/Panel
       win1, panel1 = self.render_left_panel()
@@ -331,4 +317,3 @@ if __name__ == "__main__":
   args = vars( parser.parse_args() )
 
   main(**args)
-
