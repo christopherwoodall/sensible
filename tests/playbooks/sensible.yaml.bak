@@ -1,0 +1,10 @@
+#!/usr/bin/env sensible-playbook
+---
+
+- sensible:
+  - name: Test
+    index: 0
+  - name: Seperator
+    index: 1
+
+...
