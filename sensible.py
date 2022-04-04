@@ -3,6 +3,7 @@
 import sys; sys.dont_write_bytecode = True;
 
 import argparse
+import itertools
 import json
 import math
 import os
@@ -148,6 +149,23 @@ class Sensible:
 
   ############
   #
+  def slice_text(self, text, width, padding):
+    sliced = []
+    if len(text) < (width + padding):
+      return [text]
+    line = ""
+    parts = list(itertools.chain.from_iterable(zip(text.split(), itertools.repeat(' '))))[:-1]
+    for part in parts:
+      if len(line) + len(part) < width:
+        line += part
+      else:
+        sliced.append(line)
+        line = part
+      if part == parts[-1]:
+        sliced.append(line)
+    #sliced.append('...')
+    return sliced
+
   def create_window(self, h, w, x, y ):
     window = curses.newwin( h, w, x, y )
     window.erase()
@@ -199,13 +217,13 @@ class Sensible:
     cur_selection = self.options[self.position]
     content = [
       f"Name: {cur_selection['name']}",
-      f"Description:",
-      f"{cur_selection['description']}"
+      f"Description:"
     ]
+    content += self.slice_text(cur_selection['description'], max_x, 2)
     for i, line in enumerate(content):
       # if len(line) <= max_x - 2:
       #   window.addstr(i + 1, 2, line, curses.color_pair(1))
-      window.addstr((i + 2), 2, textwrap.fill(f"{line}", (max_x -2)), curses.color_pair(1))
+      window.addnstr((i + 2), 2, textwrap.fill(f"{line}", (max_x -2)), curses.color_pair(1))
     panel = curses.panel.new_panel(window)
     return window, panel
 
