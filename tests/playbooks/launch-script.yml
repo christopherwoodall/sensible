@@ -1,0 +1,25 @@
+#!/usr/bin/env ansible-playbook
+---
+
+### sensible ###
+# - name: Launch a script
+# - description: >
+#     Launch a python, shell, perl, etc. script
+# - index: 4
+# - tags:
+#   - script
+### /sensible ###
+
+- name: Network Scan
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Launch a Script
+      raw: |
+        {{ ansible_playbook_python }} \
+          script.py
+          </dev/tty >/dev/tty 2>/dev/tty
+
+...
