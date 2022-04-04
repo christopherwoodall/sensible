@@ -2,7 +2,7 @@
 
 An Ansible Playbook TUI
 
-![screenshot](docs/screenshot.png)
+![screenshot](docs/screencast.gif)
 
 # Project Layout
 Utilizing the below directory layout, the following command would be ran to start the TUI:
@@ -61,3 +61,7 @@ Below is an example Sensible header inside a playbook
 
 ...
 ```
+
+# Screenshots
+
+![screenshot](docs/screenshot.png)
