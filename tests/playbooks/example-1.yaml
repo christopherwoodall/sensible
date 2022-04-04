@@ -2,11 +2,12 @@
 ---
 
 ### sensible ###
-# - name: All
-# - description: All
-# - index: 0
+# - name: Example 1
+# - description: This is the first example
+# - index: 1
 # - tags:
-#   - test
+#   - docker
+#   - k3s
 ### /sensible ###
 
 - name: "Test"

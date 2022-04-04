@@ -2,16 +2,16 @@
 ---
 
 ### sensible ###
-# - name: Contoller
+# - name: Example 2
 # - description: >
-#     Controller is the main entry
-#     point for the application.
-# - index: 1
+#     This is the second example
+# - index: 2
 # - vars:
 #   - config: /path/to/config.yml
 #   - inventory: /path/to/inventory.yml
 # - tags:
-#   - test
+#   - controller
+#   - testing
 ### /sensible ###
 
 - name: "Test"
