@@ -147,6 +147,15 @@ class Sensible:
 
   ############
   #
+  def create_window(self, h, w, x, y ):
+    window = curses.newwin( h, w, x, y )
+    window.erase()
+    window.immedok(True)
+    window.box()
+    window.bkgd(" ", curses.color_pair(4))
+    window.refresh( )
+    return window
+
   def render_title(self):
     text = self.elements['title']
     height, width = self.stdscr.getmaxyx()
@@ -157,17 +166,13 @@ class Sensible:
   def render_chyron(self):
     text = " | ".join(f'{k}: {v}' for k,v in self.elements['chyron'].items())
     height, width = self.stdscr.getmaxyx()
+    self.stdscr.addstr(height-1, 0, " " * (width-1), curses.color_pair(3))
     self.stdscr.addstr(height-1, 0, text, curses.color_pair(3))
-    self.stdscr.addstr(height-1, len(text), " " * (width - len(text) - 1), curses.color_pair(3))
 
   def render_left_panel(self):
     max_x = math.floor(((self.get_width() / 9 )) * 6 )
-    max_y = math.floor((self.get_height() -2))
-    window = curses.newwin( max_y, max_x, 1, 0 )
-    window.erase()
-    window.box()
-    window.bkgd(" ", curses.color_pair(4))
-    window.refresh( )
+    max_y = math.floor((self.get_height() -3))
+    window = self.create_window( max_y, max_x, 1, 0 )
     for i, option in enumerate(self.options):
       highlight = curses.color_pair(4)
       # Check if selection is a seperator
@@ -189,12 +194,7 @@ class Sensible:
   def render_right_panel(self):
     _x = math.floor(((self.get_width() / 9 )) * 6 )
     max_x = math.floor(((self.get_width() / 9 )) * 3 )
-    window = curses.newwin( (self.get_height() -2), max_x, 1, _x )
-    window.immedok(True)
-    window.erase()
-    window.box()
-    window.bkgd(" ", curses.color_pair(4))
-    window.refresh( )
+    window = self.create_window( (self.get_height() -3), max_x, 1, _x )
     cur_selection = self.options[self.position]
     content = [
       f"Name: {cur_selection['name']}",
@@ -205,7 +205,6 @@ class Sensible:
       # if len(line) <= max_x - 2:
       #   window.addstr(i + 1, 2, line, curses.color_pair(1))
       window.addstr((i + 2), 2, textwrap.fill(f"{line}", (max_x -2)), curses.color_pair(1))
-    window.refresh( )
     panel = curses.panel.new_panel(window)
     return window, panel
 
@@ -213,16 +212,13 @@ class Sensible:
   # TUI
   def run(self, stdscr):
     self.stdscr = stdscr
-    # Clear and refresh the screen for a blank canvas
-    stdscr.clear()
-    stdscr.refresh()
-    ###
+    self.stdscr.border( 0 )
+    self.stdscr.keypad(1)
+
     curses.noecho()
     curses.cbreak()
-    self.stdscr.border( 0 )
     curses.curs_set( 0 )
-    self.stdscr.keypad(1)
-    # Start colors in curses
+
     curses.start_color()
     curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_BLACK)
     curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
@@ -230,23 +226,17 @@ class Sensible:
     curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
     curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK)
     curses.init_pair(6, curses.COLOR_BLUE, curses.COLOR_BLACK)
-    # curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    # curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK)
-    # curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-    # curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    # curses.init_pair(6, curses.COLOR_BLACK, curses.COLOR_WHITE)
-    # curses.init_pair(7, curses.COLOR_RED, curses.COLOR_BLACK)
-    # curses.init_pair(8, curses.COLOR_WHITE, curses.COLOR_WHITE)
     curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_BLUE)
 
     k = 0
     cursor_y = 0
     cursor_y_max = len(self.options) -1
-    self.run_plays = False
 
     while (k != ord('q')):
       # Initialization
+      # Clear and refresh the screen for a blank canvas
       stdscr.clear()
+      stdscr.refresh()
 
       if k == curses.KEY_DOWN:
         if (cursor_y + 1) >= cursor_y_max:
