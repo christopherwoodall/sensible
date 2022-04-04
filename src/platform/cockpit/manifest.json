@@ -1,0 +1,15 @@
+{
+  "name": "Sensible",
+  "version": 0,
+  "priority": 1,
+
+  "dashboard": {
+    "index": {
+      "label": "Sensible",
+      "order": 1,
+      "icon": "fa-connectdevelop",
+      "path": "index.html"
+    }
+  },
+  "content-security-policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-src 'self'"
+}
