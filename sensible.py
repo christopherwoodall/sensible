@@ -177,7 +177,8 @@ class Sensible:
       if option['selected']:
         highlight = curses.color_pair(5)
       if i == self.position:
-        highlight = curses.color_pair(1)
+        if not option['selected']:
+          highlight = curses.color_pair(1)
         window.addstr((i + 2), 2, f"> {option['name']}", highlight)
       else:
         window.addstr((i + 2), 2, f"  {option['name']}", highlight)
