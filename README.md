@@ -11,16 +11,22 @@ Utilizing the below directory layout, the following command would be ran to star
 ```
 
 ```
-sensible.py
-ansible.cfg
-inventory/
-    inventory.yaml
-playbooks/
-    example.yaml
-roles/
-    common/
-        tasks/
-            main.yml
+|- sensible.py
+|
+|- ansible.cfg
+|
+|-inventory/
+|  |- inventory.yaml
+|
+|- playbooks/
+|  |- example-1.yaml
+|  |- example-2.yaml
+|  |- seperator.yaml
+|
+|- roles/
+|  |- common/
+|  |  |- tasks/
+|  |  |  |- main.yml
 ```
 
 # Header Format
