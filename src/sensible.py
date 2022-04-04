@@ -80,8 +80,8 @@ class Sensible:
   ############
   # Playbooks
   def find_playbooks(self, playbook_dir):
-    playbook_dir += '/playbooks'
-    playbooks = [None] * 50
+    playbook_dir += '/playbooks'  # TODO: make this a configurable option
+    playbooks = [None] * 1000     # TODO: better array creation...
     files = [ f for f in Path(playbook_dir).iterdir()
       if f.is_file() and f.suffix in ['.yml', '.yaml'] ]
     for f in files:
