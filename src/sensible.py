@@ -43,8 +43,9 @@ class Sensible:
     self.elements = {
       'title':  "Sensible - Ansible Playbook TUI",
       'chyron': {
-        'space': "Select playbooks",
-        'enter': "Run playbooks",
+        'arrows': "Move Selection",
+        'space': "Select Playbooks",
+        'enter': "Run Playbooks",
         'q': "Quit",
         'a': "About"
       }
