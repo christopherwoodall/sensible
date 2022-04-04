@@ -6,9 +6,12 @@ import argparse
 import json
 import math
 import os
+import subprocess
+import textwrap
 
 import curses
 import curses.panel
+import curses.textpad
 
 from pathlib import Path
 from pprint import pprint
@@ -35,6 +38,7 @@ class Sensible:
   def __init__(self,**kwargs):
     self.options = { }
     self.position = 0
+    self.run_plays = False
     self.elements = {
       'title':  "Sensible - Ansible Playbook TUI",
       'chyron': {
@@ -49,8 +53,8 @@ class Sensible:
     for key, value in kwargs.items(): self.attach(key, value)
 
     curses.wrapper(self.run)
-
-
+    if self.run_plays:
+      self.run_playbooks()
 
   ############
   # Utils
@@ -114,6 +118,14 @@ class Sensible:
       sys.exit(1)
     self.options = playbooks
 
+  def run_playbooks(self):
+    for option in self.options:
+      if option['selected']:
+        playbook_path = option['path']
+        ansible_cmd = f"ansible-playbook {playbook_path}"
+        os.system(ansible_cmd)
+
+
   ############
   #
   def notify(self, key, value):
@@ -135,23 +147,18 @@ class Sensible:
 
   ############
   #
-  def render_title(self, text):
-    text = "Sensible - Ansible Playbook TUI"
+  def render_title(self):
+    text = self.elements['title']
     height, width = self.stdscr.getmaxyx()
     start_y = int((width // 2) - (len(text) // 2) - len(text) % 2)
-    max_y = (self.get_width( ))
-    self.stdscr.addstr(0, 0, f"{' ' * max_y}", curses.color_pair(3) )
+    self.stdscr.addstr(0, 0, f"{' ' * self.get_width()}", curses.color_pair(3) )
     self.stdscr.addstr(0, start_y, text, curses.color_pair(3))
-
 
   def render_chyron(self):
     text = " | ".join(f'{k}: {v}' for k,v in self.elements['chyron'].items())
-
     height, width = self.stdscr.getmaxyx()
-    self.stdscr.attron(curses.color_pair(3))
-    self.stdscr.addstr(height-1, 0, text)
-    self.stdscr.addstr(height-1, len(text), " " * (width - len(text) - 1))
-    self.stdscr.attroff(curses.color_pair(3))
+    self.stdscr.addstr(height-1, 0, text, curses.color_pair(3))
+    self.stdscr.addstr(height-1, len(text), " " * (width - len(text) - 1), curses.color_pair(3))
 
   def render_left_panel(self):
     max_x = math.floor(((self.get_width() / 9 )) * 6 )
@@ -181,17 +188,23 @@ class Sensible:
   def render_right_panel(self):
     _x = math.floor(((self.get_width() / 9 )) * 6 )
     max_x = math.floor(((self.get_width() / 9 )) * 3 )
-    max_y = math.floor((self.get_height() -2))
-    window = curses.newwin( max_y, max_x, 1, _x )
+    window = curses.newwin( (self.get_height() -2), max_x, 1, _x )
+    window.immedok(True)
     window.erase()
     window.box()
     window.bkgd(" ", curses.color_pair(4))
     window.refresh( )
     cur_selection = self.options[self.position]
-    #meta = json.dumps(cur_selection, sort_keys=False, indent=2)
-    #meta = yaml.dump(cur_selection, sort_keys=False, default_flow_style=False)
-    meta = f"{cur_selection['name']}\n\n{cur_selection['description']}"
-    window.addstr((0 + 2), 2, f"{meta}", curses.color_pair(1))
+    content = [
+      f"Name: {cur_selection['name']}",
+      f"Description:",
+      f"{cur_selection['description']}"
+    ]
+    for i, line in enumerate(content):
+      # if len(line) <= max_x - 2:
+      #   window.addstr(i + 1, 2, line, curses.color_pair(1))
+      window.addstr((i + 2), 2, textwrap.fill(f"{line}", (max_x -2)), curses.color_pair(1))
+    window.refresh( )
     panel = curses.panel.new_panel(window)
     return window, panel
 
@@ -225,23 +238,15 @@ class Sensible:
     # curses.init_pair(8, curses.COLOR_WHITE, curses.COLOR_WHITE)
     curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_BLUE)
 
-    # Loop where k is the last character pressed
     k = 0
-    cursor_x = 0
     cursor_y = 0
-
+    cursor_y_max = len(self.options) -1
+    self.run_plays = False
 
     while (k != ord('q')):
       # Initialization
       stdscr.clear()
-      height, width = stdscr.getmaxyx()
 
-      # Render title
-      self.render_title(self.elements['title'])
-      # Render status bar
-      self.render_chyron()
-
-      cursor_y_max = len(self.options) -1
       if k == curses.KEY_DOWN:
         if (cursor_y + 1) >= cursor_y_max:
           cursor_y = cursor_y_max
@@ -256,24 +261,16 @@ class Sensible:
       elif k == ord(' '):
           self.options[self.position]['selected'] = (
             not self.options[self.position]['selected'] )
-      elif k == curses.KEY_ENTER:
-          cursor_x = cursor_x - 1
+      elif k == curses.KEY_ENTER or k == 10:
+        self.run_plays = True
+        break
 
       self.position = cursor_y
 
-      # Declaration of strings
-      title = "Curses example"[:width-1]
-      subtitle = "Written by Clay McLeod"[:width-1]
-      keystr = "Last key pressed: {}".format(k)[:width-1]
-      if k == 0:
-          keystr = "No key press detected..."[:width-1]
-
-      # Centering calculations
-      start_x_title = int((width // 2) - (len(title) // 2) - len(title) % 2)
-      start_x_subtitle = int((width // 2) - (len(subtitle) // 2) - len(subtitle) % 2)
-      start_x_keystr = int((width // 2) - (len(keystr) // 2) - len(keystr) % 2)
-      start_y = int((height // 2) - 2)
-
+      # Render title
+      self.render_title()
+      # Render status bar
+      self.render_chyron()
       ## Window/Panel
       win1, panel1 = self.render_left_panel()
       curses.panel.update_panels(); stdscr.refresh()
@@ -283,13 +280,13 @@ class Sensible:
       curses.panel.update_panels(); stdscr.refresh()
       panel2.top(); curses.panel.update_panels(); stdscr.refresh()
 
-
       # Refresh the screen
       stdscr.refresh()
       # curses.flushinp()
 
       # Wait for next input
       k = stdscr.getch()
+
 
 #########################################
 
