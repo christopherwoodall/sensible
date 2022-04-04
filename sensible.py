@@ -143,12 +143,11 @@ class Sensible:
     # return self.notify('width', width, self.window)
     return width
 
+  ############
+  #
   def center_text(self, text, width):
     return int((width // 2) - (len(text) // 2) - len(text) % 2)
 
-
-  ############
-  #
   def slice_text(self, text, width, padding):
     sliced = []
     if len(text) < (width + padding):
@@ -175,6 +174,8 @@ class Sensible:
     window.refresh( )
     return window
 
+  ############
+  #
   def render_title(self):
     text = self.elements['title']
     height, width = self.stdscr.getmaxyx()
