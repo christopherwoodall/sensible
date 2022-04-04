@@ -49,12 +49,12 @@ class Sensible:
       }
     }
 
-
     for key, value in kwargs.items(): self.attach(key, value)
 
     curses.wrapper(self.run)
     if self.run_plays:
       self.run_playbooks()
+
 
   ############
   # Utils
@@ -145,6 +145,7 @@ class Sensible:
   def center_text(self, text, width):
     return int((width // 2) - (len(text) // 2) - len(text) % 2)
 
+
   ############
   #
   def create_window(self, h, w, x, y ):
@@ -207,6 +208,7 @@ class Sensible:
       window.addstr((i + 2), 2, textwrap.fill(f"{line}", (max_x -2)), curses.color_pair(1))
     panel = curses.panel.new_panel(window)
     return window, panel
+
 
   ############
   # TUI
@@ -279,14 +281,9 @@ class Sensible:
       k = stdscr.getch()
 
 
-#########################################
-
 def main(**kwargs):
-  # print(kwargs)
   app = Sensible(**kwargs)
 
-
-#########################################
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(
