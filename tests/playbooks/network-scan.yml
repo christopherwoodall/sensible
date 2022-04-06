@@ -2,12 +2,12 @@
 ---
 
 ### sensible ###
-# - name: Scan Network
-# - description: >
-#     Scan your local network to find possible
-#     Raspberry Pis.
-# - index: 3
-# - tags:
+# name: Scan Network
+# description: >
+#   Scan your local network to find possible
+#   Raspberry Pis.
+# index: 3
+# tags:
 #   - discover
 ### /sensible ###
 

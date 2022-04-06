@@ -1,0 +1,31 @@
+#!/usr/bin/env ansible-playbook
+---
+
+### sensible ###
+# name: Install Packages
+# description: Install Useful Packages
+# index: 6
+# vars:
+#   - -K
+# tags:
+#   - packages
+### /sensible ###
+
+
+- name: Install Packages
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  vars_files:
+    - "../vars/common.yml"
+
+  roles:
+   - { role: install-packages, become: true }
+
+  post_tasks:
+    - name: "Host Facts"
+      debug:
+        var: hostvars[inventory_hostname]
+        verbosity: 2
+...

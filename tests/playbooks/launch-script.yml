@@ -2,11 +2,11 @@
 ---
 
 ### sensible ###
-# - name: Launch a script
-# - description: >
-#     Launch a python, shell, perl, etc. script
-# - index: 4
-# - tags:
+# name: Launch a script
+# description: >
+#   Launch a python, shell, perl, etc. script
+# index: 4
+# tags:
 #   - script
 ### /sensible ###
 
