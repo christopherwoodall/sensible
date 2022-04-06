@@ -95,8 +95,7 @@ class Sensible:
           playbooks.append(parsed)
     playbooks = list(filter(None, playbooks))
     if not playbooks:
-      print("[!] No playbooks found")
-      sys.exit(1)
+      raise OSError(f"[!] No playbooks found in {playbook_dir}")
     return ['options', playbooks]
 
   def parse_playbook(self, playbook_path):
