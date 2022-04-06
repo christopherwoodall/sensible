@@ -116,8 +116,8 @@ class Sensible:
       ansible_cmd  = [ f"cd {self.dir} &&" ]
       ansible_cmd += [ f"ansible-playbook" ]
       if option['selected']:
-        # if 'vars' in option.keys():
-        #   print(option['vars'])
+        if 'vars' in option.keys():
+          ansible_cmd += option['vars']
         playbook_path = option['path']
         ansible_cmd += [ f"playbooks/{playbook_path.split('/')[-1]}" ]
         os.system(' '.join(ansible_cmd))
