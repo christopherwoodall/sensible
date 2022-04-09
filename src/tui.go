@@ -7,6 +7,11 @@ import (
 	"github.com/rivo/tview"
 )
 
+type UI struct {
+	App *tview.Application
+	// Details *tview.NewTextView
+}
+
 func create_list(items []parsers.Header, app *tview.Application) *tview.List {
 	list := tview.NewList()
 
@@ -18,6 +23,19 @@ func create_list(items []parsers.Header, app *tview.Application) *tview.List {
 		app.Stop()
 	})
 	return list
+}
+
+func New() *UI {
+	app := *tview.NewApplication()
+	//header
+	//chyron
+	//menu
+	// details := *tview.NewTextView()
+	//sidebar
+	return &UI{
+		App: &app,
+		// Details: &details,
+	}
 }
 
 func TUI(playbooks []parsers.Header) {
