@@ -5,8 +5,10 @@
 # name: Install Packages
 # description: Install Useful Packages
 # index: 6
-# vars:
+# args:
 #   - -K
+# requires:
+#   - install-packages
 # tags:
 #   - packages
 ### /sensible ###
