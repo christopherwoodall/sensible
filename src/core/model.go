@@ -3,10 +3,12 @@ package core
 import (
 	"io/ioutil"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
 )
+
 
 
 func parse_header(playbook_path string) (*Playbook, bool) {
@@ -55,5 +57,8 @@ func ParsePlaybooks(playbook_dir string) []Playbook {
 				continue
 		}
 	}
+	sort.SliceStable(playbooks, func(i, j int) bool {
+		return playbooks[i].Index < playbooks[j].Index
+	})
 	return playbooks
 }
