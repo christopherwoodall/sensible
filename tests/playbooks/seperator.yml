@@ -2,9 +2,9 @@
 ---
 
 ### sensible ###
-# name: Seperator Description
+# name: Seperator Name
 # description: |
-#   A seperator
+#   A seperator description
 # index: 0
 # tags:
 #   - seperator
