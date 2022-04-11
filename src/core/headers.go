@@ -4,6 +4,7 @@ type Config struct {
 	AnsibleDir string
 	PlaybookDir string
 	Playbooks []Playbook
+	UI *TUI
 }
 
 
