@@ -10,7 +10,7 @@
 #   - script
 ### /sensible ###
 
-- name: Network Scan
+- name: Launch a Script
   hosts: localhost
   connection: local
   gather_facts: false
@@ -18,8 +18,6 @@
   tasks:
     - name: Launch a Script
       raw: |
-        {{ ansible_playbook_python }} \
-          script.py
-          </dev/tty >/dev/tty 2>/dev/tty
+        bash script.sh </dev/tty >/dev/tty 2>/dev/tty
 
 ...
