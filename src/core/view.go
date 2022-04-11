@@ -46,10 +46,10 @@ func (tui *TUI) Run() *TUI {
 								 SetText("FOOTER")
 	}()
 
-	tui.Menu   = tview.NewList()
-	tui.Details = tview.NewTextView()
+	// tui.Menu   = tview.NewList(); tui.Menu.Clear()
+	// tui.Details = tview.NewTextView(); tui.Details.Clear()
+	tui.Draw()
 
-	tui.Redraw()
 
 	grid := tview.NewGrid().
 								SetRows(1, 0, 3).
@@ -133,6 +133,9 @@ func (tui *TUI) Listen( ) {
 /////////////////////////////////////////
 //
 func (tui *TUI) Redraw( ) {
+	tui.Details.Clear()
+	tui.Menu.Clear()
+
 	menu    := tui.draw_menu()
 	details := func() *tview.TextView {
 		return tview.NewTextView().
@@ -144,6 +147,15 @@ func (tui *TUI) Redraw( ) {
 	tui.Details = details
 }
 
+func (tui *TUI) Draw( ) {
+	tui.Menu = tview.NewList().
+		ShowSecondaryText(false).
+		SetHighlightFullLine(true)
+
+	tui.Details = tview.NewTextView()
+	tui.Redraw()
+}
+
 func (tui *TUI) Quit( ) {
 	tui.App.Stop()
 }
@@ -153,37 +165,35 @@ func (tui *TUI) Quit( ) {
 //
 func (tui *TUI) draw_menu( ) *tview.List {
 	list := tui.Menu
-	list.Clear()
-	list.
-		ShowSecondaryText(false).
-		SetHighlightFullLine(true)
+	// _, _, width, _ := list.GetInnerRect()
 
 	for i, item := range tui.Playbooks {
-		content := ""
-		switch  {
-			case
-				tag_in(item.Tags, "seperator"):
-				  _, _, width, _ := list.GetInnerRect()
-					// margin  := strings.Repeat(" ", width / 2 )
-					padding := strings.Repeat("=", width)
-					// content = margin + padding + " " + item.Name + " " + padding
-					content = padding + " " + item.Name + " " + padding
-					list.AddItem(content, "", 0, nil)
-			default:
-				if tui.Playbooks[i].Selected {
-					content = "  [X] " + item.Name
-				} else {
-					content = "  [ ] " + item.Name
-				}
-				list.AddItem(content, "", 0, func() {
-					curr_index := list.GetCurrentItem()
-					// curr_selection, _ := list.GetItemText(curr_index)
-					// curr_content := strings.Replace(curr_selection, "[ ]", "[X]", 1)
-					tui.Playbooks[curr_index].Selected = true
-					// list.SetItemText(curr_index, curr_content, "")
-					tui.Redraw()
-				})
+		var content string
+		// switch  {
+		// 	case
+		// 		tag_in(item.Tags, "seperator"):
+		// 			// padding := strings.Repeat("=", ((width / 2) -2 ) - len(item.Name))
+		// 			padding := strings.Repeat("=", width)
+		// 			content = padding + " " + item.Name + " " + padding
+		// 			list.AddItem(content, "", 0, nil)
+		// 	default:
+		// }
+
+		if tui.Playbooks[i].Selected == true {
+			content = "  [x] "
+		} else {
+			content = "  [ ] "
 		}
+		content += item.Name
+		list.AddItem(content, "", 0, func() {
+			curr_index := list.GetCurrentItem()
+			// curr_selection, _ := list.GetItemText(curr_index)
+			// curr_content := strings.Replace(curr_selection, "[ ]", "[X]", 1)
+			tui.Playbooks[curr_index].Selected = true
+			// list.SetItemText(curr_index, curr_content, "")
+			//tui.Draw()
+			tui.Redraw()
+		})
 
 	}
 
