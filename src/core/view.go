@@ -19,20 +19,25 @@ type TUI struct {
 
 func (tui *TUI) Run() *TUI {
 	tui.App    = tview.NewApplication()
+
 	tui.Header = func() *tview.TextView {
 		return tview.NewTextView().
 								 SetTextAlign(tview.AlignCenter).
 								 SetText("Sensible")
 	}()
-	tui.Menu    = tview.NewTable().
-											SetBorders(false).
-											SetSelectable(true, true)
+
+	tui.Menu = tview.NewTable()
+	tui.Menu.
+		SetBorders(false).
+		SetSelectable(true, true)
+
 	tui.Details = tview.NewTextView()
 	tui.Details.
 		SetWrap(false).
 		SetDynamicColors(true).
 		SetBorderPadding(1, 1, 2, 0)
-	tui.Chyron  = func() *tview.TextView {
+
+		tui.Chyron  = func() *tview.TextView {
 		return tview.NewTextView().
 								 SetTextAlign(tview.AlignCenter).
 								 SetText("FOOTER")
@@ -129,7 +134,8 @@ func (tui *TUI) DrawMenu() *tview.Table {
 		table.SetCell(i, 0,
 			tview.NewTableCell(playbook.Name).
 				SetTextColor(color).
-				SetAlign(tview.AlignCenter))
+				SetAlign(tview.AlignCenter).
+				SetExpansion(1))
 	}
 
 	return table
