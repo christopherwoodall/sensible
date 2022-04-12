@@ -209,12 +209,10 @@ func (tui *TUI) DrawMenu() *tview.Table {
 					SetExpansion(1)
 		}
 		table.SetCell(i, 0, cell)
-
-
 	}
-
 	return table
 }
+
 
 /////////////////////////////////////////
 //
