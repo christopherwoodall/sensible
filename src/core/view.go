@@ -1,36 +1,21 @@
 package core
 
 import (
-	"strings"
-
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
-
 type TUI struct {
 	App *tview.Application
 	Header *tview.TextView
-	Menu *tview.List
+	Menu *tview.Table
 	Details *tview.TextView
+	// Details *tview.Flex
 	Chyron *tview.TextView
 	// Modal
 	Playbooks []Playbook
 	PrevIndex int
 }
-
-
-// func (tui *TUI) New() *TUI {
-//   return &TUI{
-// 		App: tview.NewApplication(),
-// 		Header: tview.NewTextView(),
-// 		Menu: tview.NewList(),
-// 		Details: tview.NewTextView(),
-// 		Chyron: tview.NewTextView(),
-// 		Playbooks: []Playbook{},
-// 		PrevIndex: 0,
-// 	}
-// }
 
 
 func (tui *TUI) Run() *TUI {
@@ -40,16 +25,22 @@ func (tui *TUI) Run() *TUI {
 								 SetTextAlign(tview.AlignCenter).
 								 SetText("Sensible")
 	}()
-	tui.Chyron = func() *tview.TextView {
+	tui.Menu    = tview.NewTable().
+											SetBorders(false).
+											SetSelectable(true, true)
+	tui.Details = tview.NewTextView()
+	tui.Details.
+		SetWrap(true).
+		SetDynamicColors(true).
+		SetBorderPadding(1, 1, 2, 0)
+	// tui.Details = tview.NewFlex()
+	tui.Chyron  = func() *tview.TextView {
 		return tview.NewTextView().
 								 SetTextAlign(tview.AlignCenter).
 								 SetText("FOOTER")
 	}()
 
-	// tui.Menu   = tview.NewList(); tui.Menu.Clear()
-	// tui.Details = tview.NewTextView(); tui.Details.Clear()
 	tui.Draw()
-
 
 	grid := tview.NewGrid().
 								SetRows(1, 0, 3).
@@ -65,66 +56,37 @@ func (tui *TUI) Run() *TUI {
 	grid.AddItem(tui.Menu, 1, 0, 1, 2, 0, 100, true).
 			 AddItem(tui.Details, 1, 2, 1, 1, 0, 100, false)
 
-	// tui.Listen()
+	tui.globalEventHanbler()
 
 	if err := tui.App.SetRoot(grid, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
 
 	return tui
-}
-
-
+}	SetFixed(1, 1).
 /////////////////////////////////////////
 //
-func tag_in(tags []string, tag string) bool {
-	for _, t := range tags {
-		if t == tag {
-			return true
+func (tui *TUI) globalEventHanbler() {
+	table := tui.Menu
+	tui.Menu.Select(0, 0).
+	SetDoneFunc(func(key tcell.Key) {
+		if key == tcell.KeyEscape {
+			tui.App.Stop()
 		}
-	}
-	return false
-}
 
-
-/////////////////////////////////////////
-//
-func (tui *TUI) highlight_node() {
-	curr_index := tui.Menu.GetCurrentItem()
-	prev_index := tui.PrevIndex
-
-	prev_selection, _ := tui.Menu.GetItemText(prev_index)
-	curr_selection, _ := tui.Menu.GetItemText(curr_index)
-
-	prev_content := strings.Replace(prev_selection, ">", " ", 1)
-	curr_content := ">  " + curr_selection
-
-
-	tui.Menu.SetItemText(prev_index, prev_content, "")
-	tui.Menu.SetItemText(curr_index, curr_content, "")
-
-}
-
-
-/////////////////////////////////////////
-// Event Listeners
-func (tui *TUI) Listen( ) {
-	tui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		curr_index := tui.Menu.GetCurrentItem()
-
-		// tui.highlight_node()
+	}).
+	SetSelectedFunc(func(row int, column int) {
+		table.GetCell(row, column).SetTextColor(tcell.ColorBlue)
+		table.SetSelectable(true, true)
+	}).
+	SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		// row, col := table.GetSelection()
+		tui.Draw()
 
 		switch event.Rune() {
-			case 'x':
-				tui.App.Stop()
-			case 'j':
-				tui.Menu.SetItemText(curr_index, ">  ", "")
+			case ' ':
+				tui.mark_selected(table.GetSelection())
 		}
-		// if event.Key() == tcell.KeyCtrlL {
-		// 	fmt.Println(tui.PrevIndex)
-		// 	return nil
-		// }
-		tui.PrevIndex = curr_index
 		return event
 	})
 }
@@ -132,74 +94,50 @@ func (tui *TUI) Listen( ) {
 
 /////////////////////////////////////////
 //
-func (tui *TUI) Redraw( ) {
-	tui.Details.Clear()
+func (tui *TUI) Draw() {
 	tui.Menu.Clear()
+	tui.Details.Clear()
 
-	menu    := tui.draw_menu()
-	details := func() *tview.TextView {
-		return tview.NewTextView().
-							   SetTextAlign(tview.AlignCenter).
-	 							 SetText("DETAILS")
-	}()
+	menu    := tui.DrawMenu()
+	details := tui.DrawDetails()
 
 	tui.Menu    = menu
 	tui.Details = details
 }
 
-func (tui *TUI) Draw( ) {
-	tui.Menu = tview.NewList().
-		ShowSecondaryText(false).
-		SetHighlightFullLine(true)
 
-	tui.Details = tview.NewTextView()
-	tui.Redraw()
-}
-
-func (tui *TUI) Quit( ) {
-	tui.App.Stop()
+/////////////////////////////////////////
+//
+func (tui *TUI) mark_selected(row, col int) {
+	tui.Playbooks[row].Selected = true
+	tui.Menu.GetCell(row, col).SetTextColor(tcell.ColorBlue)
 }
 
 
 /////////////////////////////////////////
 //
-func (tui *TUI) draw_menu( ) *tview.List {
-	list := tui.Menu
-	// _, _, width, _ := list.GetInnerRect()
+func (tui *TUI) DrawMenu() *tview.Table {
+	table := tui.Menu
 
-	for i, item := range tui.Playbooks {
-		var content string
-		// switch  {
-		// 	case
-		// 		tag_in(item.Tags, "seperator"):
-		// 			// padding := strings.Repeat("=", ((width / 2) -2 ) - len(item.Name))
-		// 			padding := strings.Repeat("=", width)
-		// 			content = padding + " " + item.Name + " " + padding
-		// 			list.AddItem(content, "", 0, nil)
-		// 	default:
-		// }
-
-		if tui.Playbooks[i].Selected == true {
-			content = "  [x] "
-		} else {
-			content = "  [ ] "
-		}
-		content += item.Name
-		list.AddItem(content, "", 0, func() {
-			curr_index := list.GetCurrentItem()
-			// curr_selection, _ := list.GetItemText(curr_index)
-			// curr_content := strings.Replace(curr_selection, "[ ]", "[X]", 1)
-			tui.Playbooks[curr_index].Selected = true
-			// list.SetItemText(curr_index, curr_content, "")
-			//tui.Draw()
-			tui.Redraw()
-		})
-
+	for i, playbook := range tui.Playbooks {
+		color := tcell.ColorWhite
+		// color = tcell.ColorYellow
+		table.SetCell(i, 0,
+			tview.NewTableCell(playbook.Name).
+				SetTextColor(color).
+				SetAlign(tview.AlignCenter))
 	}
 
-	list.AddItem("", "", 0, nil)
-	list.AddItem("  Quit", "Press to exit", 0, tui.Quit)
-
-	return list
+	return table
 }
 
+/////////////////////////////////////////
+//
+func (tui *TUI) DrawDetails() *tview.TextView {
+	row, _ := tui.Menu.GetSelection()
+	current_playbook := tui.Playbooks[row]
+
+	tui.Details.SetText(current_playbook.Description)
+
+	return tui.Details
+}
