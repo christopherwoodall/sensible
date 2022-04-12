@@ -105,13 +105,16 @@ func (tui *TUI) globalEventHanbler() {
 				} else {
 					tui.CurIndex = len(tui.Playbooks) - 1
 				}
+			// TODO: Mouse Handling
+			default:
+				_, tui.CurIndex = table.GetSelection()
 		}
 
 		switch event.Rune() {
 			case ' ':
 				tui.mark_selected()
 		}
-		tui.highlight_node()
+		//tui.highlight_node()
 		return event
 	})
 }
@@ -143,7 +146,6 @@ func (tui *TUI) Draw() {
 /////////////////////////////////////////
 //
 func (tui *TUI) mark_selected() {
-	// table.GetSelection()
 	row, col := tui.CurIndex, 0
 	playbook := tui.Playbooks[row]
 	tui.Playbooks[row].Selected = ! tui.Playbooks[row].Selected
@@ -160,16 +162,12 @@ func (tui *TUI) mark_selected() {
 }
 
 func (tui *TUI) highlight_node() {
-	// row, col := tui.Menu.GetSelection()
 	row, col := tui.CurIndex, 0
-
-
 	playbook := tui.Playbooks[row]
 	if ! tag_in(playbook.Tags, "seperator") {
 		content := tui.Menu.GetCell(row, col).Text
 		content = ">" + content[1:]
 		tui.Menu.GetCell(row, col).
-			// SetTextColor(tcell.ColorBlue).
 			SetText(content)
 	}
 }
