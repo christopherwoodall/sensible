@@ -11,19 +11,6 @@ import (
 	"github.com/rivo/tview"
 )
 
-type TUI struct {
-	App *tview.Application
-	Header *tview.TextView
-	Menu *tview.Table
-	Details *tview.TextView
-	Chyron *tview.Table
-	// Modal
-	PlaybookDir string
-	AnsibleDir string
-	Playbooks []Playbook
-	CurIndex int
-}
-
 
 func (tui *TUI) Run() *TUI {
 	tui.App    = tview.NewApplication()
