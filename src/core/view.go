@@ -10,7 +10,6 @@ type TUI struct {
 	Header *tview.TextView
 	Menu *tview.Table
 	Details *tview.TextView
-	// Details *tview.Flex
 	Chyron *tview.TextView
 	// Modal
 	Playbooks []Playbook
@@ -30,10 +29,9 @@ func (tui *TUI) Run() *TUI {
 											SetSelectable(true, true)
 	tui.Details = tview.NewTextView()
 	tui.Details.
-		SetWrap(true).
+		SetWrap(false).
 		SetDynamicColors(true).
 		SetBorderPadding(1, 1, 2, 0)
-	// tui.Details = tview.NewFlex()
 	tui.Chyron  = func() *tview.TextView {
 		return tview.NewTextView().
 								 SetTextAlign(tview.AlignCenter).
@@ -63,7 +61,9 @@ func (tui *TUI) Run() *TUI {
 	}
 
 	return tui
-}	SetFixed(1, 1).
+}
+
+
 /////////////////////////////////////////
 //
 func (tui *TUI) globalEventHanbler() {
@@ -73,7 +73,9 @@ func (tui *TUI) globalEventHanbler() {
 		if key == tcell.KeyEscape {
 			tui.App.Stop()
 		}
-
+		// if key == tcell.KeyEnter {
+		// 	table.SetSelectable(true, true)
+		// }
 	}).
 	SetSelectedFunc(func(row int, column int) {
 		table.GetCell(row, column).SetTextColor(tcell.ColorBlue)
@@ -121,7 +123,9 @@ func (tui *TUI) DrawMenu() *tview.Table {
 
 	for i, playbook := range tui.Playbooks {
 		color := tcell.ColorWhite
-		// color = tcell.ColorYellow
+		if playbook.Selected {
+			color = tcell.ColorBlue
+		}
 		table.SetCell(i, 0,
 			tview.NewTableCell(playbook.Name).
 				SetTextColor(color).
@@ -134,6 +138,7 @@ func (tui *TUI) DrawMenu() *tview.Table {
 /////////////////////////////////////////
 //
 func (tui *TUI) DrawDetails() *tview.TextView {
+
 	row, _ := tui.Menu.GetSelection()
 	current_playbook := tui.Playbooks[row]
 
