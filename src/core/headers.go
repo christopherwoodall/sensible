@@ -1,5 +1,7 @@
 package core
 
+import "github.com/rivo/tview"
+
 type Config struct {
 	AnsibleDir string
 	PlaybookDir string
@@ -24,3 +26,18 @@ type PlaybookVars struct {
 	Key string
 	Value string
 }
+
+
+type TUI struct {
+	App *tview.Application
+	Header *tview.TextView
+	Menu *tview.Table
+	Details *tview.TextView
+	Chyron *tview.Table
+	// Modal
+	PlaybookDir string
+	AnsibleDir string
+	Playbooks []Playbook
+	CurIndex int
+}
+
