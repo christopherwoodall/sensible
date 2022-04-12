@@ -111,6 +111,8 @@ func (tui *TUI) globalEventHanbler() {
 		}
 
 		switch event.Rune() {
+			case 'q':
+				tui.App.Stop()
 			case ' ':
 				tui.mark_selected()
 		}
