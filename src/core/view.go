@@ -15,6 +15,7 @@ type TUI struct {
 	Chyron *tview.TextView
 	// Modal
 	Playbooks []Playbook
+	CurIndex int
 	PrevIndex int
 }
 
@@ -89,13 +90,28 @@ func (tui *TUI) globalEventHanbler() {
 		table.SetSelectable(true, true)
 	}).
 	SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		// row, col := table.GetSelection()
 		tui.Draw()
+
+		switch event.Key() {
+			case tcell.KeyUp:
+				if (tui.CurIndex - 1) > 0 {
+					tui.CurIndex = tui.CurIndex - 1
+				} else {
+					tui.CurIndex = 0
+				}
+			case tcell.KeyDown:
+				if (tui.CurIndex + 1) < len(tui.Playbooks) {
+					tui.CurIndex = tui.CurIndex + 1
+				} else {
+					tui.CurIndex = len(tui.Playbooks) - 1
+				}
+		}
 
 		switch event.Rune() {
 			case ' ':
-				tui.mark_selected(table.GetSelection())
+				tui.mark_selected()
 		}
+		tui.highlight_node()
 		return event
 	})
 }
@@ -119,25 +135,42 @@ func (tui *TUI) Draw() {
 	tui.Menu.Clear()
 	tui.Details.Clear()
 
-	menu    := tui.DrawMenu()
-	details := tui.DrawDetails()
-
-	tui.Menu    = menu
-	tui.Details = details
+	tui.Menu    = tui.DrawMenu()
+	tui.Details = tui.DrawDetails()
 }
 
 
 /////////////////////////////////////////
 //
-func (tui *TUI) mark_selected(row, col int) {
+func (tui *TUI) mark_selected() {
+	// table.GetSelection()
+	row, col := tui.CurIndex, 0
 	playbook := tui.Playbooks[row]
 	tui.Playbooks[row].Selected = ! tui.Playbooks[row].Selected
+	if tag_in(playbook.Tags, "seperator") { return }
 	if tui.Playbooks[row].Selected {
-		if ! tag_in(playbook.Tags, "seperator") {
-			tui.Menu.GetCell(row, col).
-				SetTextColor(tcell.ColorBlue).
-				SetText("  [✓] " + playbook.Name)
-		}
+		tui.Menu.GetCell(row, col).
+			SetTextColor(tcell.ColorBlue).
+			SetText("  [✓] " + playbook.Name)
+	} else {
+		tui.Menu.GetCell(row, col).
+			SetTextColor(tcell.ColorWhite).
+			SetText("  [ ] " + playbook.Name)
+	}
+}
+
+func (tui *TUI) highlight_node() {
+	// row, col := tui.Menu.GetSelection()
+	row, col := tui.CurIndex, 0
+
+
+	playbook := tui.Playbooks[row]
+	if ! tag_in(playbook.Tags, "seperator") {
+		content := tui.Menu.GetCell(row, col).Text
+		content = ">" + content[1:]
+		tui.Menu.GetCell(row, col).
+			// SetTextColor(tcell.ColorBlue).
+			SetText(content)
 	}
 }
 
