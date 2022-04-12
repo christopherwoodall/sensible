@@ -12,7 +12,7 @@ type TUI struct {
 	Header *tview.TextView
 	Menu *tview.Table
 	Details *tview.TextView
-	Chyron *tview.TextView
+	Chyron *tview.Table
 	// Modal
 	Playbooks []Playbook
 	CurIndex int
@@ -39,11 +39,7 @@ func (tui *TUI) Run() *TUI {
 		SetDynamicColors(true).
 		SetBorderPadding(1, 1, 2, 0)
 
-		tui.Chyron  = func() *tview.TextView {
-		return tview.NewTextView().
-								 SetTextAlign(tview.AlignCenter).
-								 SetText("FOOTER")
-	}()
+		tui.Chyron = tui.DrawFooter()
 
 	tui.Draw()
 
@@ -85,8 +81,8 @@ func (tui *TUI) globalEventHanbler() {
 		// }
 	}).
 	SetSelectedFunc(func(row int, column int) {
-		table.GetCell(row, column).SetTextColor(tcell.ColorBlue)
-		table.SetSelectable(true, true)
+		table.GetCell(row, column).
+			SetTextColor(tcell.ColorBlue)
 	}).
 	SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		tui.Draw()
@@ -147,7 +143,8 @@ func (tui *TUI) Draw() {
 /////////////////////////////////////////
 //
 func (tui *TUI) mark_selected() {
-	row, col := tui.CurIndex, 0
+	// row, col := tui.CurIndex, 0
+	row, col := tui.Menu.GetSelection()
 	playbook := tui.Playbooks[row]
 	tui.Playbooks[row].Selected = ! tui.Playbooks[row].Selected
 	if tag_in(playbook.Tags, "seperator") { return }
@@ -163,7 +160,8 @@ func (tui *TUI) mark_selected() {
 }
 
 func (tui *TUI) highlight_node() {
-	row, col := tui.CurIndex, 0
+	// row, col := tui.CurIndex, 0
+	row, col := tui.Menu.GetSelection()
 	playbook := tui.Playbooks[row]
 	if ! tag_in(playbook.Tags, "seperator") {
 		content := tui.Menu.GetCell(row, col).Text
@@ -217,11 +215,35 @@ func (tui *TUI) DrawMenu() *tview.Table {
 /////////////////////////////////////////
 //
 func (tui *TUI) DrawDetails() *tview.TextView {
-
 	row, _ := tui.Menu.GetSelection()
 	current_playbook := tui.Playbooks[row]
-
 	tui.Details.SetText(current_playbook.Description)
-
 	return tui.Details
 }
+
+
+/////////////////////////////////////////
+//
+func (tui *TUI) DrawFooter() *tview.Table {
+	footer := tview.NewTable()
+	footer.
+		SetBorders(false).
+		SetSelectable(false, false)
+	help_txt := []string{
+		"q: Quit",
+		"Space: Select",
+		"Enter: Run",
+	}
+	for i, line := range help_txt {
+		footer.SetCell(0, i, tview.NewTableCell(line + " | ").
+			SetTextColor(tcell.ColorWhite).
+			SetAlign(tview.AlignLeft))
+	}
+	return footer
+}
+
+
+/////////////////////////////////////////
+// NOTES
+//  - https://github.com/rivo/tview/blob/master/table.go
+//  -
