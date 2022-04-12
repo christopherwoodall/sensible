@@ -131,9 +131,13 @@ func (tui *TUI) Draw() {
 //
 func (tui *TUI) mark_selected(row, col int) {
 	playbook := tui.Playbooks[row]
-	if ! tag_in(playbook.Tags, "seperator") {
-		tui.Playbooks[row].Selected = true
-		tui.Menu.GetCell(row, col).SetTextColor(tcell.ColorBlue)
+	tui.Playbooks[row].Selected = ! tui.Playbooks[row].Selected
+	if tui.Playbooks[row].Selected {
+		if ! tag_in(playbook.Tags, "seperator") {
+			tui.Menu.GetCell(row, col).
+				SetTextColor(tcell.ColorBlue).
+				SetText("  [✓] " + playbook.Name)
+		}
 	}
 }
 
@@ -148,24 +152,29 @@ func (tui *TUI) DrawMenu() *tview.Table {
 		var cell *tview.TableCell
 		var content string
 		color := tcell.ColorWhite
-		if playbook.Selected { color = tcell.ColorBlue }
-			switch  {
-				case
-					tag_in(playbook.Tags, "seperator"):
-						padding := strings.Repeat("=", width)
-						color    = tcell.Color51
-						content  = padding + " " + playbook.Name + " " + padding
-						cell = tview.
-							NewTableCell(content).
-							SetTextColor(color).
-							SetAlign(tview.AlignCenter).
-							SetExpansion(1)
-				default:
+		switch  {
+			case
+				tag_in(playbook.Tags, "seperator"):
+					padding := strings.Repeat("=", width)
+					color    = tcell.Color51
+					content  = padding + " " + playbook.Name + " " + padding
 					cell = tview.
-						NewTableCell(playbook.Name).
+						NewTableCell(content).
 						SetTextColor(color).
-						SetAlign(tview.AlignLeft).
+						SetAlign(tview.AlignCenter).
 						SetExpansion(1)
+			default:
+				if playbook.Selected {
+					color   = tcell.ColorBlue
+					content = "  [✓] " + playbook.Name
+				} else{
+					content = "  [ ] " +  playbook.Name
+				}
+				cell = tview.
+					NewTableCell(content).
+					SetTextColor(color).
+					SetAlign(tview.AlignLeft).
+					SetExpansion(1)
 		}
 		table.SetCell(i, 0, cell)
 
