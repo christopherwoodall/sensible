@@ -41,7 +41,7 @@ func (tui *TUI) Run() *TUI {
 
 	tui.Details = tview.NewTextView()
 	tui.Details.
-		SetWrap(false).
+		SetWrap(true).
 		SetDynamicColors(true).
 		SetBorderPadding(1, 1, 2, 0)
 
