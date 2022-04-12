@@ -16,7 +16,6 @@ type TUI struct {
 	// Modal
 	Playbooks []Playbook
 	CurIndex int
-	PrevIndex int
 }
 
 
