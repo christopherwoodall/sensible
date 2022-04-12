@@ -1,6 +1,8 @@
 package core
 
 import (
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -101,6 +103,18 @@ func (tui *TUI) globalEventHanbler() {
 
 /////////////////////////////////////////
 //
+func tag_in(tags []string, tag string) bool {
+	for _, t := range tags {
+		if t == tag {
+			return true
+		}
+	}
+	return false
+}
+
+
+/////////////////////////////////////////
+//
 func (tui *TUI) Draw() {
 	tui.Menu.Clear()
 	tui.Details.Clear()
@@ -116,8 +130,11 @@ func (tui *TUI) Draw() {
 /////////////////////////////////////////
 //
 func (tui *TUI) mark_selected(row, col int) {
-	tui.Playbooks[row].Selected = true
-	tui.Menu.GetCell(row, col).SetTextColor(tcell.ColorBlue)
+	playbook := tui.Playbooks[row]
+	if ! tag_in(playbook.Tags, "seperator") {
+		tui.Playbooks[row].Selected = true
+		tui.Menu.GetCell(row, col).SetTextColor(tcell.ColorBlue)
+	}
 }
 
 
@@ -125,17 +142,34 @@ func (tui *TUI) mark_selected(row, col int) {
 //
 func (tui *TUI) DrawMenu() *tview.Table {
 	table := tui.Menu
+	_, _, width, _ := table.GetInnerRect()
 
 	for i, playbook := range tui.Playbooks {
+		var cell *tview.TableCell
+		var content string
 		color := tcell.ColorWhite
-		if playbook.Selected {
-			color = tcell.ColorBlue
+		if playbook.Selected { color = tcell.ColorBlue }
+			switch  {
+				case
+					tag_in(playbook.Tags, "seperator"):
+						padding := strings.Repeat("=", width)
+						color    = tcell.Color51
+						content  = padding + " " + playbook.Name + " " + padding
+						cell = tview.
+							NewTableCell(content).
+							SetTextColor(color).
+							SetAlign(tview.AlignCenter).
+							SetExpansion(1)
+				default:
+					cell = tview.
+						NewTableCell(playbook.Name).
+						SetTextColor(color).
+						SetAlign(tview.AlignLeft).
+						SetExpansion(1)
 		}
-		table.SetCell(i, 0,
-			tview.NewTableCell(playbook.Name).
-				SetTextColor(color).
-				SetAlign(tview.AlignCenter).
-				SetExpansion(1))
+		table.SetCell(i, 0, cell)
+
+
 	}
 
 	return table
