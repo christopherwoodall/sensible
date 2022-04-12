@@ -50,7 +50,7 @@ func (tui *TUI) Run() *TUI {
 	tui.Draw()
 
 	grid := tview.NewGrid().
-								SetRows(1, 0, 3).
+								SetRows(1, 0, 1).
 								SetColumns(-3, -3, -3).
 								SetBorders(true)
 
@@ -267,14 +267,17 @@ func (tui *TUI) DrawFooter() *tview.Table {
 		SetBorders(false).
 		SetSelectable(false, false)
 	help_txt := []string{
-		"q: Quit",
+	 "'<arrows>': Move",
 		"Space: Select",
 		"Enter: Run",
+		"q: Quit",
 	}
 	for i, line := range help_txt {
 		footer.SetCell(0, i, tview.NewTableCell(line + " | ").
-			SetTextColor(tcell.ColorWhite).
-			SetAlign(tview.AlignCenter))
+			SetBackgroundColor(tcell.ColorWhite).
+			SetTextColor(tcell.ColorBlack).
+			SetAlign(tview.AlignCenter).
+			SetExpansion(1))
 	}
 	return footer
 }
