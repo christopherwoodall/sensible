@@ -18,6 +18,8 @@ func Controller(ansibleDir string, playbookDir string) {
 
 	UI := &TUI{
 	 Playbooks: app.Playbooks,
+	 PlaybookDir: playbookDir,
+	 AnsibleDir: app.AnsibleDir,
 	}
 	app.UI = UI.Run()
 

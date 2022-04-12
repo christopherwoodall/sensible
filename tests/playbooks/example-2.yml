@@ -6,9 +6,6 @@
 # description: >
 #   This is the second example
 # index: 2
-# vars:
-#   - config: /path/to/config.yml
-#   - inventory: /path/to/inventory.yml
 # tags:
 #   - controller
 #   - testing

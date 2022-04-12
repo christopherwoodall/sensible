@@ -35,6 +35,7 @@ func parse_header(playbook_path string) (*Playbook, bool) {
 		default:
 		}
 	}
+	playbook_header.Path = filepath.Base(playbook_path)
 	return playbook_header, false
 }
 

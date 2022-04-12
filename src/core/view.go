@@ -1,6 +1,10 @@
 package core
 
 import (
+	"bytes"
+	"fmt"
+	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
@@ -14,6 +18,8 @@ type TUI struct {
 	Details *tview.TextView
 	Chyron *tview.Table
 	// Modal
+	PlaybookDir string
+	AnsibleDir string
 	Playbooks []Playbook
 	CurIndex int
 }
@@ -73,12 +79,8 @@ func (tui *TUI) globalEventHanbler() {
 	table := tui.Menu
 	tui.Menu.Select(0, 0).
 	SetDoneFunc(func(key tcell.Key) {
-		if key == tcell.KeyEscape {
-			tui.App.Stop()
-		}
-		// if key == tcell.KeyEnter {
-		// 	table.SetSelectable(true, true)
-		// }
+		if key == tcell.KeyEscape { tui.App.Stop()     }
+		if key == tcell.KeyEnter  { tui.run_selected() }
 	}).
 	SetSelectedFunc(func(row int, column int) {
 		table.GetCell(row, column).
@@ -88,6 +90,8 @@ func (tui *TUI) globalEventHanbler() {
 		tui.Draw()
 
 		switch event.Key() {
+			case tcell.KeyEnter:
+				tui.run_selected()
 			case tcell.KeyUp:
 				if (tui.CurIndex - 1) > 0 {
 					tui.CurIndex = tui.CurIndex - 1
@@ -106,14 +110,47 @@ func (tui *TUI) globalEventHanbler() {
 		}
 
 		switch event.Rune() {
-			case 'q':
-				tui.App.Stop()
 			case ' ':
 				tui.mark_selected()
 		}
 		//tui.highlight_node()
 		return event
 	})
+	tui.App.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+			case 'q':
+				tui.App.Stop()
+		}
+		return event
+	})
+}
+
+
+/////////////////////////////////////////
+// TODO: Better Path management
+func (tui *TUI) run_selected() {
+	tui.App.Stop()
+
+	os.Chdir(tui.AnsibleDir)
+	for _, playbook := range tui.Playbooks {
+		ansible_cmd := "ansible-playbook"
+		if playbook.Selected {
+			ansible_cmd += " playbooks/" + playbook.Path
+			for _, arg := range playbook.Args {
+				ansible_cmd += " " + arg
+			}
+			ansible_cmd += "</dev/tty >/dev/tty 2>/dev/tty"
+			fmt.Println(ansible_cmd)
+			// os.StartProcess(ansible_cmd, []string{}, &os.ProcAttr{Dir: tui.AnsibleDir})
+			var stdout bytes.Buffer
+			var stderr bytes.Buffer
+			cmd := exec.Command("bash", "-c", ansible_cmd)
+			cmd.Stdout = &stdout
+			cmd.Stderr = &stderr
+			cmd.Run()
+			fmt.Println(stdout.String())
+		}
+	}
 }
 
 
@@ -237,7 +274,7 @@ func (tui *TUI) DrawFooter() *tview.Table {
 	for i, line := range help_txt {
 		footer.SetCell(0, i, tview.NewTableCell(line + " | ").
 			SetTextColor(tcell.ColorWhite).
-			SetAlign(tview.AlignLeft))
+			SetAlign(tview.AlignCenter))
 	}
 	return footer
 }
@@ -247,3 +284,4 @@ func (tui *TUI) DrawFooter() *tview.Table {
 // NOTES
 //  - https://github.com/rivo/tview/blob/master/table.go
 //  -
+

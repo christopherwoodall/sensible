@@ -17,7 +17,7 @@
   tasks:
     - name: "Test Task"
       shell: |
-        ls ~
+        ls /
       register: result
 
     - debug: var=result
