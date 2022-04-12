@@ -1,11 +1,5 @@
 package core
 
-// import (
-// 	"encoding/json"
-// 	"fmt"
-// )
-
-
 func Controller(ansibleDir string, playbookDir string) {
 
 	app := new(Config)
@@ -13,16 +7,12 @@ func Controller(ansibleDir string, playbookDir string) {
 	app.PlaybookDir = playbookDir
 	app.Playbooks   = ParsePlaybooks(playbookDir)
 
-	// app_debug, _ := json.MarshalIndent(app, "", "\t")
-	// fmt.Print(string(app_debug))
-
 	UI := &TUI{
-	 Playbooks: app.Playbooks,
-	 PlaybookDir: playbookDir,
-	 AnsibleDir: app.AnsibleDir,
+	 Playbooks:   app.Playbooks,
+	 PlaybookDir: app.PlaybookDir,
+	 AnsibleDir:  app.AnsibleDir,
 	}
 	app.UI = UI.Run()
 
-
-
 }
+
